@@ -1,0 +1,6 @@
+@Restore_HostAddress = http://localhost:5058
+
+GET {{Restore_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
