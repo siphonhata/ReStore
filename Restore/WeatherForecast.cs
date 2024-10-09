@@ -10,6 +10,5 @@ namespace Restore
 
         public string Summary { get; set; }
 
-        public int MyProperty { get; set; }
     }
 }
