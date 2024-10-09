@@ -1,0 +1,46 @@
+name: .NET CI/CD
+
+on:
+  push:
+    branches: [ "main_m" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build
+      run: dotnet build --no-restore
+    
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+
+    - name: Push to master
+      if: github.ref == 'refs/heads/main_m' && success()
+      run: |
+        git config --global user.name 'siphonhata'
+        git config --global user.email 'siphonhata@gmail.com'
+        git config advice.diverging false
+        git checkout master
+        git pull origin master
+        # Resolve conflicts by taking changes from main_m
+        git checkout main_m .
+        git add .
+        git commit -m "Merge main_m into master with conflict resolution"
+        git push origin master
