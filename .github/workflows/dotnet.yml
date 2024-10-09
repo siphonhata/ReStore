@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main_m" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
@@ -33,14 +33,10 @@ jobs:
         git config --local user.email "siphonhata@gmail.com"
         
     - name: Create Pull Request
-      run: |
-        git checkout master
-        git merge main_m
-        git push origin master
-        
-    - name: Merge Pull Request
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh pr create --base master --head main_m --title "Auto PR from main_m to master" --body "Automated pull request to merge changes from main_m to master."
-        gh pr merge --auto
+        git checkout -b main_m_merge
+        git merge main_m
+        git push origin main_m_merge
+        gh pr create --base main --head main_m_merge --title "Auto PR from main_m to main" --body "Automated pull request to merge changes from main_m to main."
