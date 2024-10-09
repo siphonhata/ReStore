@@ -7,11 +7,16 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build-and-pr:
+  build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
@@ -26,26 +31,11 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
 
-    - name: Create Pull Request
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main_m'
-      uses: peter-evans/create-pull-request@v5
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: Auto-merge from main_m
-        title: Automated PR from main_m to master
-        body: |
-          Automated PR created by GitHub Actions
-          - Merging changes from main_m to master
-        branch: main_m
-        base: master
-        delete-branch: false
-
-    - name: Auto-merge Pull Request
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main_m'
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Push to master
+      if: github.ref == 'refs/heads/main_m' && success()
       run: |
-        pr_number=$(gh pr list --state open --base master --head main_m --json number -q '.[0].number')
-        if [ ! -z "$pr_number" ]; then
-          gh pr merge $pr_number --auto --merge
-        fi
+        git config --global user.name 'siphonhata'
+        git config --global user.email 'siphonhata@gmail.com'
+        git checkout master
+        git merge --ff-only main_m
+        git push origin master
