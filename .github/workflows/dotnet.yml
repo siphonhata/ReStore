@@ -36,6 +36,8 @@ jobs:
       run: |
         git config --global user.name 'siphonhata'
         git config --global user.email 'siphonhata@gmail.com'
+        git config advice.diverging false
         git checkout master
-        git merge --ff-only main_m
+        git pull origin master
+        git merge main_m -m "Merge main_m into master" --allow-unrelated-histories
         git push origin master
