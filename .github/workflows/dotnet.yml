@@ -39,5 +39,8 @@ jobs:
         git config advice.diverging false
         git checkout master
         git pull origin master
-        git merge main_m -m "Merge main_m into master" --allow-unrelated-histories
+        # Resolve conflicts by taking changes from main_m
+        git checkout main_m .
+        git add .
+        git commit -m "Merge main_m into master with conflict resolution"
         git push origin master
